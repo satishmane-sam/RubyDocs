@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruby Source Code Architecture: Comprehensive Guide</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- AOS CSS for scroll animations -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <!-- Custom CSS for a modern, Astra Tech Pro inspired theme -->
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: url('https://source.unsplash.com/1600x900/?technology,code') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+      line-height: 1.6;
+      padding-top: 70px;
+    }
+    /* Overlay for readability */
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.95);
+      min-height: 100vh;
+      padding-bottom: 50px;
+    }
+    /* Navbar customization */
+    .navbar {
+      background-color: #1a1a2e;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .navbar-brand {
+      color: #e94560 !important;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .nav-link {
+      color: #e94560 !important;
+      margin: 0 5px;
+      padding: 5px 15px;
+      border: 2px solid #e94560;
+      border-radius: 30px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .nav-link:hover {
+      background-color: #e94560 !important;
+      color: #fff !important;
+    }
+    .section-header {
+      margin-top: 40px;
+      margin-bottom: 20px;
+      color: #1a1a2e;
+      border-bottom: 2px solid #e94560;
+      padding-bottom: 5px;
+    }
+    pre {
+      background: #eef2f7;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+    }
+    .mermaid {
+      margin: 20px 0;
+    }
+    a {
+      text-decoration: none;
+    }
+    /* Footer style */
+    footer {
+      background-color: #1a1a2e;
+      color: #fff;
+      padding: 20px 0;
+      text-align: center;
+      margin-top: 40px;
+    }
+    /* Card styling for sections */
+    .card {
+      border: none;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+    .card-header {
+      background-color: #e94560;
+      color: #fff;
+      font-weight: 600;
+    }
+    .card-body {
+      background-color: #fff;
+    }
+    /* About Me section */
+    .about-me {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .about-me:hover {
+      transform: scale(1.03);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+    .about-me img {
+      max-width: 150px;
+      border-radius: 50%;
+      margin-right: 20px;
+      border: 4px solid #e94560;
+    }
+    .about-me h3 {
+      color: #1a1a2e;
+    }
+  </style>
+  <!-- Mermaid JS -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+</head>
+<body>
+  <div class="overlay">
+    <!-- Navbar with animation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" data-aos="fade-down" data-aos-duration="1000">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Ruby Architecture Guide</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="#introduction">Introduction</a></li>
+            <li class="nav-item"><a class="nav-link" href="#overview">Overview</a></li>
+            <li class="nav-item"><a class="nav-link" href="#root">Root Directory</a></li>
+            <li class="nav-item"><a class="nav-link" href="#core">Core Files</a></li>
+            <li class="nav-item"><a class="nav-link" href="#include">Include Files</a></li>
+            <li class="nav-item"><a class="nav-link" href="#extensions">Extensions</a></li>
+            <li class="nav-item"><a class="nav-link" href="#lib">Standard Library</a></li>
+            <li class="nav-item"><a class="nav-link" href="#gc">Garbage Collector</a></li>
+            <li class="nav-item"><a class="nav-link" href="#test">Test Suite</a></li>
+            <li class="nav-item"><a class="nav-link" href="#platform">Platform-Specific</a></li>
+            <li class="nav-item"><a class="nav-link" href="#about">About Me</a></li>
+            <li class="nav-item"><a class="nav-link" href="#conclusion">Conclusion</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container my-4">
+      <!-- Introduction -->
+      <section id="introduction" class="mb-5" data-aos="fade-up" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Introduction
+          </div>
+          <div class="card-body">
+            <p>
+              Ruby is an open-source programming language known for its simplicity and productivity. Developed by Yukihiro "Matz" Matsumoto, Ruby is implemented primarily in C and features a modular architecture. This guide is designed for maintainers, contributors, and anyone curious about Ruby’s internal workings.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Overview -->
+      <section id="overview" class="mb-5" data-aos="fade-right" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Overview of Ruby’s Source Code
+          </div>
+          <div class="card-body">
+            <p>
+              The Ruby source code is divided into several key components:
+            </p>
+            <ul>
+              <li><strong>Build Configuration:</strong> Files to set up the environment for compiling Ruby.</li>
+              <li><strong>Core Source Files:</strong> The engine of Ruby written in C.</li>
+              <li><strong>Include Files:</strong> Header files containing function declarations and macros.</li>
+              <li><strong>Extensions:</strong> Bundled C extensions that extend Ruby's capabilities.</li>
+              <li><strong>Standard Library:</strong> Ruby code providing core functionalities.</li>
+              <li><strong>Garbage Collection:</strong> Memory management systems.</li>
+              <li><strong>Testing Framework:</strong> A suite of tests ensuring stability and performance.</li>
+              <li><strong>Platform-Specific Code:</strong> Adjustments to run Ruby on different operating systems.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Root Directory -->
+      <section id="root" class="mb-5" data-aos="fade-left" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            The Root Directory
+          </div>
+          <div class="card-body">
+            <p>
+              The root of the Ruby source tree contains critical configuration files and documentation. It serves as the starting point for understanding the build process and overall structure.
+            </p>
+            <h5>configure.in / configure.ac and Makefile.in</h5>
+            <p>
+              <strong>Purpose:</strong> Set up the build environment so that Ruby compiles correctly on various platforms.
+            </p>
+            <ul>
+              <li><strong>configure.in / configure.ac:</strong> Contains macros and configuration checks using GNU Autoconf, verifies system dependencies, and sets optional features.</li>
+              <li><strong>Makefile.in:</strong> A template used with the configuration results to produce the final Makefile with build rules.</li>
+            </ul>
+            <h5>README.md and Documentation Files</h5>
+            <p>
+              <strong>Purpose:</strong> Provide an overview of the project, build instructions, and contribution guidelines.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Core Source Files -->
+      <section id="core" class="mb-5" data-aos="zoom-in" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Core Source Files (C)
+          </div>
+          <div class="card-body">
+            <p>
+              The core source files form the heart of Ruby. These files, written in C, manage everything from initialization to the execution of Ruby code.
+            </p>
+            <h5>main.c</h5>
+            <p>
+              <strong>Purpose:</strong> Entry point for the Ruby interpreter.
+            </p>
+            <ul>
+              <li>Initializes system interfaces and memory management.</li>
+              <li>Processes command-line arguments and transfers control to deeper routines.</li>
+            </ul>
+            <h5>ruby.c</h5>
+            <p>
+              <strong>Purpose:</strong> Sets up the runtime environment.
+            </p>
+            <ul>
+              <li>Initializes global variables, symbol tables, and object spaces.</li>
+              <li>Creates the main execution context and handles errors.</li>
+            </ul>
+            <h5>parse.y</h5>
+            <p>
+              <strong>Purpose:</strong> Defines Ruby's grammar and syntax using Yacc/Bison.
+            </p>
+            <ul>
+              <li>Converts Ruby source into an Abstract Syntax Tree (AST).</li>
+              <li>Provides semantic actions and error recovery for syntax issues.</li>
+            </ul>
+            <h5>eval.c</h5>
+            <p>
+              <strong>Purpose:</strong> Evaluates Ruby expressions and executes code.
+            </p>
+            <ul>
+              <li>Traverses the AST or bytecode to execute code.</li>
+              <li>Manages method dispatch and error handling during execution.</li>
+            </ul>
+            <h5>vm.c and Related Files</h5>
+            <p>
+              <strong>Purpose:</strong> Implements the Ruby Virtual Machine (YARV) for bytecode execution.
+            </p>
+            <ul>
+              <li><strong>vm.c:</strong> Manages the execution loop and internal state.</li>
+              <li><strong>insns.def:</strong> Central definitions for VM instructions.</li>
+              <li><strong>iseq.c:</strong> Processes instruction sequences (bytecode).</li>
+            </ul>
+            <div class="mermaid">
+              graph TD
+                A["Core Source Files (C)"]
+                A --> A1["main.c\n(Entry point)"]
+                A --> A2["ruby.c\n(Runtime init)"]
+                A --> A3["parse.y\n(Grammar & parser)"]
+                A --> A4["eval.c\n(Code execution)"]
+                A --> A5["vm.c\n(Virtual Machine)"]
+                A5 --> A5a["insns.def\n(VM instructions)"]
+                A5 --> A5b["iseq.c\n(Bytecode processing)"]
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Include Files -->
+      <section id="include" class="mb-5" data-aos="fade-up" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Include Files (include/)
+          </div>
+          <div class="card-body">
+            <p>
+              Contains header files (.h) that declare functions, data structures, and macros used throughout Ruby.
+            </p>
+            <ul>
+              <li><strong>ruby.h:</strong> Main header file defining core APIs, types, and macros.</li>
+              <li><strong>Other Headers:</strong> Include declarations for subsystems like garbage collection, threading, etc.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Extensions -->
+      <section id="extensions" class="mb-5" data-aos="fade-right" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Extensions Directory (ext/)
+          </div>
+          <div class="card-body">
+            <p>
+              Contains bundled C extensions that extend Ruby's functionality.
+            </p>
+            <ul>
+              <li><strong>extconf.rb:</strong> A configuration script for building the extension.</li>
+              <li><strong>Extension Directories:</strong> Each subdirectory holds additional features and functionalities.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Standard Library -->
+      <section id="lib" class="mb-5" data-aos="fade-left" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Standard Library (lib/)
+          </div>
+          <div class="card-body">
+            <p>
+              Provides Ruby code (written in Ruby) that implements a wide range of built-in functionalities.
+            </p>
+            <ul>
+              <li><strong>net/http.rb:</strong> Implements HTTP and networking features.</li>
+              <li><strong>Other Libraries:</strong> Cover various modules and classes such as file I/O, date/time, etc.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Garbage Collector -->
+      <section id="gc" class="mb-5" data-aos="zoom-in-up" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Garbage Collector (GC)
+          </div>
+          <div class="card-body">
+            <p>
+              Manages memory allocation and cleanup, ensuring efficient resource usage.
+            </p>
+            <ul>
+              <li><strong>gc.c:</strong> Implements garbage collection algorithms (mark-and-sweep, generational GC).</li>
+              <li>Works closely with the VM to free unused objects and optimize performance.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Test Suite -->
+      <section id="test" class="mb-5" data-aos="fade-up" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Test Suite (test/)
+          </div>
+          <div class="card-body">
+            <p>
+              Contains automated tests to ensure Ruby’s stability, correctness, and performance.
+            </p>
+            <ul>
+              <li><strong>Unit Tests:</strong> Test individual components.</li>
+              <li><strong>Functional Tests:</strong> Simulate real-world usage scenarios.</li>
+              <li><strong>Regression Tests:</strong> Prevent the reintroduction of previously fixed bugs.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Platform-Specific Directories -->
+      <section id="platform" class="mb-5" data-aos="fade-right" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Platform-Specific Directories
+          </div>
+          <div class="card-body">
+            <p>
+              Contains code specific to different operating systems.
+            </p>
+            <ul>
+              <li><strong>win32/:</strong> Code and adjustments to ensure Ruby works properly on Windows.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Me -->
+      <section id="about" class="mb-5" data-aos="flip-up" data-aos-duration="800">
+        <div class="about-me d-flex align-items-center">
+          <img src="https://yt3.googleusercontent.com/ytc/AIdro_lLNKOwCXfXhLTVStp7NHlze_crkALJApkUyBeMsRRprYM=s900-c-k-c0x00ffffff-no-rj" alt="Satish Mane Profile Picture">
+          <div>
+            <h3>About Me</h3>
+            <p>
+              Hi, I'm <strong>Satish Mane</strong>. I am proud to be maintaining this Ruby package as part of the Sustaining Engineering team. My goal is to grow into the role of <strong>Associate Software Maintenance Engineer at Red Hat</strong>. I also maintain this custom Ruby documentation page, ensuring it remains a valuable resource for developers and maintainers.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conclusion -->
+      <section id="conclusion" class="mb-5" data-aos="fade-up" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Conclusion
+          </div>
+          <div class="card-body">
+            <p>
+              This guide has provided a comprehensive overview of Ruby’s source code architecture, covering everything from build configuration and core files to extensions, the standard library, and testing. Whether you are a maintainer, contributor, or simply curious about Ruby’s inner workings, this reference aims to simplify the complex structure into understandable parts.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ASCII Tree Diagram -->
+      <section id="ascii-tree" class="mb-5" data-aos="zoom-in" data-aos-duration="800">
+        <div class="card">
+          <div class="card-header">
+            Simple ASCII Tree Diagram
+          </div>
+          <div class="card-body">
+            <pre>
+Ruby Source Code Architecture
+├── Root Directory
+│   ├── configure.in / configure.ac    (Sets up build configuration)
+│   ├── Makefile.in                    (Template for generating the Makefile)
+│   └── README.md & Documentation Files (Project overview and guides)
+├── Core Source Files (C)
+│   ├── main.c                         (Entry point for the interpreter)
+│   ├── ruby.c                         (Runtime initialization and control)
+│   ├── parse.y                        (Grammar rules and parser)
+│   ├── eval.c                         (Executes Ruby expressions and code)
+│   └── vm.c                           (Virtual Machine & bytecode execution)
+│       ├── insns.def                  (VM instruction definitions)
+│       └── iseq.c                     (Processes bytecode sequences)
+├── Include Files (include/)
+│   ├── ruby.h                         (Core API and type definitions)
+│   └── Other Header Files             (Subsystem declarations like GC, threads)
+├── Extensions (ext/)
+│   ├── extconf.rb                     (Configuration for building extensions)
+│   └── Various Extension Directories  (Additional functionalities)
+├── Standard Library (lib/)
+│   ├── net/http.rb                    (HTTP & networking features)
+│   └── Other Core Libraries           (Additional modules and classes)
+├── Garbage Collector (GC)
+│   └── gc.c                           (Memory management algorithms)
+├── Test Suite (test/)
+│   ├── Unit Tests                     (Tests individual components)
+│   ├── Functional Tests               (Tests real-world scenarios)
+│   └── Regression Tests               (Prevents reintroduction of bugs)
+└── Platform-Specific Directories
+    └── win32/                        (Windows-specific code)
+            </pre>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer data-aos="fade-up" data-aos-duration="800">
+      <div class="container">
+        <p>© 2025 Ruby Architecture Guide. Maintained by Satish Mane | Aspiring Associate Software Maintenance Engineer at Red Hat</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Bootstrap JS Bundle (with Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- AOS JS for scroll animations -->
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init();
+  </script>
+</body>
+</html>
